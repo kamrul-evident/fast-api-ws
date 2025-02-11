@@ -18,7 +18,9 @@ class User(Base):
     fullname: Mapped[Optional[str]]  # Optional 'fullname' (could be NULL)
 
     # Define the relationship with the Address model (one-to-many relationship)
-    addresses: Mapped[List["Address"]] = relationship(back_populates="user", cascade="all, delete, delete-orphan")
+    addresses: Mapped[List["Address"]] = relationship(
+        back_populates="user", cascade="all, delete, delete-orphan"
+    )
 
     # String representation of the User instance
     def __repr__(self):
@@ -39,6 +41,7 @@ class Address(Base):
     def __repr__(self):
         return f"<Address(email={self.email!r})>"
 
+
 # Create an SQLite in-memory database for this example
 engine = create_engine("sqlite://", echo=True)
 
@@ -48,10 +51,20 @@ Base.metadata.create_all(engine)
 # Start a session to interact with the database
 with Session(engine) as session:
     # Create two user instances with their respective addresses
-    kamrul = User(name="Kamrul", fullname="Kamrul Hasan",
-                  addresses=[Address(email="kamrul@example.com"), Address(email="kamrul@evidentbd.com")])
+    kamrul = User(
+        name="Kamrul",
+        fullname="Kamrul Hasan",
+        addresses=[
+            Address(email="kamrul@example.com"),
+            Address(email="kamrul@evidentbd.com")
+        ]
+    )
 
-    john = User(name="John", fullname="John Doe", addresses=[Address(email="john@example.com")])
+    john = User(
+        name="John",
+        fullname="John Doe",
+        addresses=[Address(email="john@example.com")]
+    )
 
     # Add both user instances to the session (queue them for database insertion)
     session.add_all([kamrul, john])
@@ -98,4 +111,3 @@ session.flush()  # Flush the changes to the database (but don't commit yet)
 # Delete the user 'john' from the database
 session.delete(john)  # Delete the 'john' instance
 session.commit()  # Commit the transaction to permanently delete the user
-

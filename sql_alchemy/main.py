@@ -13,8 +13,12 @@ class User(Base):
     __tablename__ = "users"  # Table name in the database
 
     # Define the columns in the 'users' table
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)  # Primary key and index on 'id'
-    name: Mapped[str] = mapped_column(String(30), index=True)  # 'name' is a string with a max length of 30
+    id: Mapped[int] = mapped_column(
+        primary_key=True, index=True
+    )  # Primary key and index on 'id'
+    name: Mapped[str] = mapped_column(
+        String(30), index=True
+    )  # 'name' is a string with a max length of 30
     fullname: Mapped[Optional[str]]  # Optional 'fullname' (could be NULL)
 
     # Define the relationship with the Address model (one-to-many relationship)
@@ -32,10 +36,16 @@ class Address(Base):
     __tablename__ = "address"  # Table name in the database
 
     # Define the columns in the 'address' table
-    id: Mapped[int] = mapped_column(primary_key=True, index=True)  # Primary key and index on 'id'
+    id: Mapped[int] = mapped_column(
+        primary_key=True, index=True
+    )  # Primary key and index on 'id'
     email: Mapped[str]  # 'email' is a string field
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))  # Foreign key to 'users' table
-    user: Mapped[User] = relationship(back_populates="addresses")  # One-to-many relationship with User
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id")
+    )  # Foreign key to 'users' table
+    user: Mapped[User] = relationship(
+        back_populates="addresses"
+    )  # One-to-many relationship with User
 
     # String representation of the Address instance
     def __repr__(self):
@@ -56,14 +66,12 @@ with Session(engine) as session:
         fullname="Kamrul Hasan",
         addresses=[
             Address(email="kamrul@example.com"),
-            Address(email="kamrul@evidentbd.com")
-        ]
+            Address(email="kamrul@evidentbd.com"),
+        ],
     )
 
     john = User(
-        name="John",
-        fullname="John Doe",
-        addresses=[Address(email="john@example.com")]
+        name="John", fullname="John Doe", addresses=[Address(email="john@example.com")]
     )
 
     # Add both user instances to the session (queue them for database insertion)
@@ -82,7 +90,9 @@ with Session(engine) as session:
 print("Get data using Simple Select")
 # Create a select statement to filter users by name
 session = Session(engine)
-stmt = select(User).where(User.name.in_(["Kamrul", "john"]))  # Filter users with names 'Kamrul' or 'John'
+stmt = select(User).where(
+    User.name.in_(["Kamrul", "john"])
+)  # Filter users with names 'Kamrul' or 'John'
 
 # Execute the query and print the results
 for user in session.scalars(stmt):  # Iterate over the selected users
@@ -90,17 +100,26 @@ for user in session.scalars(stmt):  # Iterate over the selected users
 
 # Select with a join to get an address associated with a user
 # The join is made between Address and User based on the foreign key
-stmt = select(Address).join(Address.user).where(User.name == "Kamrul").where(Address.email == "kamrul@example.com")
+stmt = (
+    select(Address)
+    .join(Address.user)
+    .where(User.name == "Kamrul")
+    .where(Address.email == "kamrul@example.com")
+)
 kamrul_address = session.scalars(stmt).first()  # Get the first matching address
 print(kamrul_address)  # Print the address
 
 # Query a single user by name 'John'
 stmt = select(User).where(User.name == "John")
-john = session.scalars(stmt).one()  # Get exactly one result (or raise an error if there are not exactly one)
+john = session.scalars(
+    stmt
+).one()  # Get exactly one result (or raise an error if there are not exactly one)
 print(john)  # Print the user
 
 # Add a new address for 'John'
-john.addresses.append(Address(email="john1@example.com"))  # Append a new address to the 'addresses' list
+john.addresses.append(
+    Address(email="john1@example.com")
+)  # Append a new address to the 'addresses' list
 session.commit()  # Commit the transaction to persist the change
 
 # Fetch the updated 'John' user from the database (with ID 2, assuming ID starts from 1)
